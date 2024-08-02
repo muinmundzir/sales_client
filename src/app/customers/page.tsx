@@ -34,7 +34,7 @@ export default function Home() {
     let url = `http://localhost:3000/customers/${customerId}`
     const response = await axios.delete(url)
 
-    if(response.status === 200) fetchCustomer()
+    if (response.status === 200) fetchCustomer()
   }
 
   return (
@@ -84,6 +84,13 @@ export default function Home() {
                   </tr>
                 )
               })}
+            {!customers.length && (
+              <tr>
+                <td colSpan={10} className='py-3 px-1 text-center'>
+                  -- Data kosong --
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </main>
