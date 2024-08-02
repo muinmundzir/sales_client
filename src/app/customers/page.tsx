@@ -49,13 +49,13 @@ export default function Home() {
         <div className='flex justify-end mb-3'>
           <button
             onClick={() => setIsOpen(true)}
-            className='flex items-center space-x-4 py-2 px-4 border border-blue-500 rounded-lg text-white bg-blue-500 shadow-md hover:bg-blue-400 hover:border-blue-400 text-sm'
+            className='flex items-center space-x-4 py-2 px-4 border border-blue-500 rounded-lg text-white bg-blue-500 shadow-md hover:bg-blue-400 hover:border-blue-400 text-sm font-bold'
           >
             <PlusIcon className='h-5 w-5 mr-2' />
             Add customer
           </button>
         </div>
-        <table className='shadow-lg bg-white rounded-lg table-fixed'>
+        <table className='shadow-lg bg-white rounded-lg table-fixed overflow-hidden'>
           <thead>
             <tr className='mx-10 text-center bg-gray-300/80'>
               <th className='py-3 px-1'>No</th>
