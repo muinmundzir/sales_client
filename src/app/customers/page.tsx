@@ -49,9 +49,9 @@ export default function Home() {
         <div className='flex justify-end mb-3'>
           <button
             onClick={() => setIsOpen(true)}
-            className='flex items-center space-x-4 py-2 px-4 border border-blue-500 rounded-lg text-white bg-blue-500 shadow-md hover:bg-blue-400 hover:border-blue-400'
+            className='flex items-center space-x-4 py-2 px-4 border border-blue-500 rounded-lg text-white bg-blue-500 shadow-md hover:bg-blue-400 hover:border-blue-400 text-sm'
           >
-            <PlusIcon className='h-5 w-5' />
+            <PlusIcon className='h-5 w-5 mr-2' />
             Add customer
           </button>
         </div>
