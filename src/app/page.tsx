@@ -1,113 +1,124 @@
-import Image from "next/image";
+'use client'
+
+import { Fragment, useCallback, useEffect, useState } from 'react'
+
+import Headers from '@app/components/Headers'
+import { formatDate } from '@app/helpers/format-date'
+import { formatCurrencyIDR } from '@app/helpers/format-currency'
+import useDebounce from '@app/hooks/useDebounce'
+import { Transaction } from '@app/interfaces/transaction.interface'
+
 
 export default function Home() {
+  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [query, setQuery] = useState('')
+
+  const debounce = useDebounce(query, 1000)
+
+  const fetchTransaction = useCallback(() => {
+    let url = 'http://localhost:3000/sales'
+
+    if (debounce !== undefined) url = url + `?query=${debounce}`
+
+    fetch(url)
+      .then((res) => res.json())
+      .then((data) => {
+        setTransactions(data)
+      })
+  }, [debounce])
+
+  useEffect(() => {
+    fetchTransaction()
+  }, [fetchTransaction])
+
+  const calculateTotal = (transcations: Transaction[]) => {
+    const sum = transcations.reduce(
+      (total, sale) => total + sale.totalPayment,
+      0,
+    )
+
+    return sum
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.currentTarget
+
+    setQuery(value)
+  }
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <Fragment>
+      <Headers />
+      <main className='mx-auto flex max-w-7xl justify-between p-6 lg:px-8 flex-col space-y-2'>
+        <div className='flex self-end items-center space-x-2'>
+          <label htmlFor='search'>Cari</label>
+          <input
+            type='text'
+            name='search'
+            className='bg-white w-full border border-slate-300 rounded-md py-2 px-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 sm:text-sm'
+            placeholder='nama kustomer/kode transaksi'
+            onChange={handleChange}
+          />
         </div>
-      </div>
-
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  );
+        <table className='shadow-lg bg-white rounded-lg table-auto'>
+          <thead>
+            <tr className='mx-10 text-center bg-gray-300/80'>
+              <th className='py-3 px-1'>No</th>
+              <th className='py-3 px-1'>No Transaksi</th>
+              <th className='py-3 px-1'>Tanggal</th>
+              <th className='py-3 px-1'>Nama Customer</th>
+              <th className='py-3 px-1'>Jumlah Barang</th>
+              <th className='py-3 px-1'>Sub Total</th>
+              <th className='py-3 px-1'>Diskon</th>
+              <th className='py-3 px-1'>Ongkir</th>
+              <th className='py-3 px-1'>Total</th>
+            </tr> </thead>
+          <tbody>
+            {transactions &&
+              transactions?.map((transaction: Transaction, index: number) => {
+                return (
+                  <tr key={transaction?.id} className="text-center">
+                    <td className='py-3 px-1'>{index + 1}</td>
+                    <td className='py-3 px-1'>{transaction?.code}</td>
+                    <td className='py-3 px-1'>
+                      {formatDate(transaction?.date.toString())}
+                    </td>
+                    <td className='py-3 px-1'>{transaction?.customer?.name}</td>
+                    <td className='py-3 px-1'>
+                      {transaction?.saleDetail[0].quantity}
+                    </td>
+                    <td className='py-3 px-1'>
+                      {formatCurrencyIDR(transaction?.subtotal.toString())}
+                    </td>
+                    <td className='py-3 px-1'>
+                      {formatCurrencyIDR(transaction?.discount.toString())}
+                    </td>
+                    <td className='py-3 px-1'>
+                      {formatCurrencyIDR(transaction?.shippingCost.toString())}
+                    </td>
+                    <td className='py-3 px-1'>
+                      {formatCurrencyIDR(transaction?.totalPayment.toString())}
+                    </td>
+                  </tr>
+                )
+              })}
+          </tbody>
+          <tfoot className="bg-gray-200 font-bold text-center">
+            <tr>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td colSpan={4}>
+                Grand Total
+              </td>
+              <td>
+                {formatCurrencyIDR(calculateTotal(transactions).toString())}
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </main>
+    </Fragment>
+  )
 }
