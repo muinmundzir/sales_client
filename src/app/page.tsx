@@ -6,11 +6,10 @@ import Headers from '@app/components/Headers'
 import { formatDate } from '@app/helpers/format-date'
 import { formatCurrencyIDR } from '@app/helpers/format-currency'
 import useDebounce from '@app/hooks/useDebounce'
-import { Transaction } from '@app/interfaces/transaction.interface'
-
+import { ITransaction } from '@app/interfaces/transaction.interface'
 
 export default function Home() {
-  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [transactions, setTransactions] = useState<ITransaction[]>([])
   const [query, setQuery] = useState('')
 
   const debounce = useDebounce(query, 1000)
@@ -31,7 +30,7 @@ export default function Home() {
     fetchTransaction()
   }, [fetchTransaction])
 
-  const calculateTotal = (transcations: Transaction[]) => {
+  const calculateTotal = (transcations: ITransaction[]) => {
     const sum = transcations.reduce(
       (total, sale) => total + sale.totalPayment,
       0,
@@ -49,7 +48,7 @@ export default function Home() {
   return (
     <Fragment>
       <Headers />
-      <main className='mx-auto flex max-w-7xl justify-between p-6 lg:px-8 flex-col space-y-2'>
+      <main className='mx-auto flex max-w-7xl justify-between p-6 lg:px-8 flex-col space-y-6'>
         <div className='flex self-end items-center space-x-2'>
           <label htmlFor='search'>Cari</label>
           <input
@@ -72,12 +71,13 @@ export default function Home() {
               <th className='py-3 px-1'>Diskon</th>
               <th className='py-3 px-1'>Ongkir</th>
               <th className='py-3 px-1'>Total</th>
-            </tr> </thead>
+            </tr>{' '}
+          </thead>
           <tbody>
             {transactions &&
-              transactions?.map((transaction: Transaction, index: number) => {
+              transactions?.map((transaction: ITransaction, index: number) => {
                 return (
-                  <tr key={transaction?.id} className="text-center">
+                  <tr key={transaction?.id} className='text-center'>
                     <td className='py-3 px-1'>{index + 1}</td>
                     <td className='py-3 px-1'>{transaction?.code}</td>
                     <td className='py-3 px-1'>
@@ -102,14 +102,21 @@ export default function Home() {
                   </tr>
                 )
               })}
+            {!transactions.length && (
+              <tr>
+                <td colSpan={10} className='py-3 px-1 text-center'>
+                  -- Data kosong --
+                </td>
+              </tr>
+            )}
           </tbody>
-          <tfoot className="bg-gray-200 font-bold text-center">
+          <tfoot className='bg-gray-200 font-bold text-center'>
             <tr>
               <td></td>
               <td></td>
               <td></td>
               <td></td>
-              <td colSpan={4}>
+              <td colSpan={4} className='py-3'>
                 Grand Total
               </td>
               <td>

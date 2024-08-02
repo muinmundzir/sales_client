@@ -1,4 +1,4 @@
-export interface TransactionDetail {
+export interface ITransactionDetail {
   id: number
   saleId: number
   itemId: number

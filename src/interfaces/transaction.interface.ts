@@ -1,7 +1,7 @@
-import { Customer } from "./customer.interface"
-import { TransactionDetail } from "./transaction-detail.interface"
+import { ICustomer } from "./customer.interface"
+import { ITransactionDetail } from "./transaction-detail.interface"
 
-export interface Transaction {
+export interface ITransaction {
   id: number
   code: string
   date: Date
@@ -12,6 +12,6 @@ export interface Transaction {
   totalPayment: number
   createdAt: Date
   updatedAt: Date
-  customer: Customer
-  saleDetail: [TransactionDetail]
+  customer: ICustomer
+  saleDetail: [ITransactionDetail]
 }
