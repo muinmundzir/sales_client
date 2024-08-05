@@ -1,7 +1,6 @@
 'use client'
 
 import { Fragment, useCallback, useEffect, useState } from 'react'
-
 import Headers from '@app/components/Headers'
 import { formatCurrencyIDR } from '@app/helpers/format-currency'
 import { formatDate } from '@app/helpers/format-date'
@@ -9,154 +8,138 @@ import useDebounce from '@app/hooks/useDebounce'
 import { ITransaction } from '@app/interfaces/transaction.interface'
 import { PlusIcon } from '@heroicons/react/24/outline'
 import { AddTransactionTable } from './components/AddTransactionTable'
+import axios from 'axios'
 
-export default function Home() {
+const Home = () => {
   const [transactions, setTransactions] = useState<ITransaction[]>([])
   const [query, setQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false)
 
   const debounce = useDebounce(query, 1000)
 
-  const fetchTransaction = useCallback(() => {
-    let url = 'http://localhost:3000/sales'
+  useEffect(() => {
+    const fetchTransaction = async () => {
+      const url = debounce
+        ? `http://localhost:3000/sales?query=${debounce}`
+        : 'http://localhost:3000/sales'
+      const response = await axios.get(url)
 
-    if (debounce !== undefined) url = url + `?query=${debounce}`
+      if (response.status === 200) {
+        setTransactions(response.data)
+      }
+    }
 
-    fetch(url)
-      .then((res) => res.json())
-      .then((data) => {
-        setTransactions(data)
-      })
+    fetchTransaction()
   }, [debounce])
 
-  useEffect(() => {
-    fetchTransaction()
-  }, [fetchTransaction])
-
-  const calculateTotal = (transcations: ITransaction[]) => {
-    const sum = transcations.reduce(
-      (total, sale) => total + sale.totalPayment,
-      0,
-    )
-
-    return sum
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.currentTarget.value)
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.currentTarget
-
-    setQuery(value)
-  }
+  const calculateTotal = (transactions: ITransaction[]) =>
+    transactions.reduce((total, sale) => total + sale.totalPayment, 0)
 
   return (
     <Fragment>
       <Headers />
-      <main className='mx-auto flex max-w-7xl justify-between p-6 lg:px-8 flex-col space-y-6'>
-        {isOpen && <AddTransactionTable transactions={transactions} onCancelAdd={() => setIsOpen(false)} />}
-        {!isOpen && (
-          <Fragment>
+      <main className='mx-auto flex max-w-7xl flex-col space-y-6 p-6 lg:px-8'>
+        {isOpen ? (
+          <AddTransactionTable onCancelAdd={() => setIsOpen(false)} />
+        ) : (
+          <>
             <div className='flex justify-between items-center'>
-              <div>
-                <button
-                  onClick={() => setIsOpen((prevValue) => !prevValue)}
-                  className='flex items-center space-x-4 py-2 px-4 border border-blue-500 rounded-lg text-white bg-blue-500 shadow-md hover:bg-blue-400 hover:border-blue-400 text-sm font-bold'
-                >
-                  <PlusIcon className='h-5 w-5 mr-2' />
-                  Tambah transaksi
-                </button>
-              </div>
+              <button
+                onClick={() => setIsOpen((prev) => !prev)}
+                className='flex items-center space-x-4 py-2 px-4 border border-blue-500 rounded-lg text-white bg-blue-500 shadow-md hover:bg-blue-400 hover:border-blue-400 text-sm font-bold'
+              >
+                <PlusIcon className='h-5 w-5 mr-2' />
+                Tambah transaksi
+              </button>
               <div className='flex items-center space-x-2'>
                 <label htmlFor='search'>Cari</label>
                 <input
+                  id='search'
                   type='text'
-                  name='search'
                   className='bg-white w-full border border-slate-300 rounded-md py-2 px-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 sm:text-sm'
                   placeholder='nama kustomer/kode transaksi'
-                  onChange={handleChange}
+                  onChange={handleSearchChange}
                 />
               </div>
             </div>
-            <table className='shadow-lg bg-white rounded-lg table-auto overflow-hidden'>
-              <thead>
-                <tr className='mx-10 text-center bg-gray-300/80'>
-                  <th className='py-3 px-1'>No</th>
-                  <th className='py-3 px-1'>No Transaksi</th>
-                  <th className='py-3 px-1'>Tanggal</th>
-                  <th className='py-3 px-1'>Nama Customer</th>
-                  <th className='py-3 px-1'>Jumlah Barang</th>
-                  <th className='py-3 px-1'>Sub Total</th>
-                  <th className='py-3 px-1'>Diskon</th>
-                  <th className='py-3 px-1'>Ongkir</th>
-                  <th className='py-3 px-1'>Total</th>
-                </tr>{' '}
-              </thead>
-              <tbody>
-                {transactions &&
-                  transactions?.map(
-                    (transaction: ITransaction, index: number) => {
-                      return (
-                        <tr key={transaction?.id} className='text-center'>
-                          <td className='py-3 px-1'>{index + 1}</td>
-                          <td className='py-3 px-1'>{transaction?.code}</td>
-                          <td className='py-3 px-1'>
-                            {formatDate(transaction?.date.toString())}
-                          </td>
-                          <td className='py-3 px-1'>
-                            {transaction?.customer?.name}
-                          </td>
-                          <td className='py-3 px-1'>
-                            {transaction?.saleDetail[0].quantity}
-                          </td>
-                          <td className='py-3 px-1'>
-                            {formatCurrencyIDR(
-                              transaction?.subtotal.toString(),
-                            )}
-                          </td>
-                          <td className='py-3 px-1'>
-                            {formatCurrencyIDR(
-                              transaction?.discount.toString(),
-                            )}
-                          </td>
-                          <td className='py-3 px-1'>
-                            {formatCurrencyIDR(
-                              transaction?.shippingCost.toString(),
-                            )}
-                          </td>
-                          <td className='py-3 px-1'>
-                            {formatCurrencyIDR(
-                              transaction?.totalPayment.toString(),
-                            )}
-                          </td>
-                        </tr>
-                      )
-                    },
-                  )}
-                {!transactions.length && (
-                  <tr>
-                    <td colSpan={10} className='py-3 px-1 text-center'>
-                      -- Data kosong --
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-              <tfoot className='bg-gray-200 font-bold text-center'>
-                <tr>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td colSpan={4} className='py-3'>
-                    Grand Total
-                  </td>
-                  <td>
-                    {formatCurrencyIDR(calculateTotal(transactions).toString())}
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
-          </Fragment>
+            <TransactionTable
+              transactions={transactions}
+              calculateTotal={calculateTotal}
+            />
+          </>
         )}
       </main>
     </Fragment>
   )
 }
+
+const TransactionTable = ({
+  transactions,
+  calculateTotal,
+}: {
+  transactions: ITransaction[]
+  calculateTotal: (transactions: ITransaction[]) => number
+}) => (
+  <table className='shadow-lg bg-white rounded-lg table-auto overflow-hidden'>
+    <thead>
+      <tr className='mx-10 text-center bg-gray-300/80'>
+        <th className='py-3 px-1'>No</th>
+        <th className='py-3 px-1'>No Transaksi</th>
+        <th className='py-3 px-1'>Tanggal</th>
+        <th className='py-3 px-1'>Nama Customer</th>
+        <th className='py-3 px-1'>Jumlah Barang</th>
+        <th className='py-3 px-1'>Sub Total</th>
+        <th className='py-3 px-1'>Diskon</th>
+        <th className='py-3 px-1'>Ongkir</th>
+        <th className='py-3 px-1'>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {transactions.length ? (
+        transactions.map((transaction, index) => (
+          <tr key={transaction.id} className='text-center'>
+            <td className='py-3 px-1'>{index + 1}</td>
+            <td className='py-3 px-1'>{transaction.code}</td>
+            <td className='py-3 px-1'>
+              {formatDate(transaction.date.toString())}
+            </td>
+            <td className='py-3 px-1'>{transaction.customer?.name}</td>
+            <td className='py-3 px-1'>{transaction.saleDetail[0]?.quantity}</td>
+            <td className='py-3 px-1'>
+              {formatCurrencyIDR(transaction.subtotal)}
+            </td>
+            <td className='py-3 px-1'>
+              {formatCurrencyIDR(transaction.discount)}
+            </td>
+            <td className='py-3 px-1'>
+              {formatCurrencyIDR(transaction.shippingCost)}
+            </td>
+            <td className='py-3 px-1'>
+              {formatCurrencyIDR(transaction.totalPayment)}
+            </td>
+          </tr>
+        ))
+      ) : (
+        <tr>
+          <td colSpan={9} className='py-3 px-1 text-center'>
+            -- Data kosong --
+          </td>
+        </tr>
+      )}
+    </tbody>
+    <tfoot className='bg-gray-200 font-bold text-center'>
+      <tr>
+        <td colSpan={8} className='py-3'>
+          Grand Total
+        </td>
+        <td>{formatCurrencyIDR(calculateTotal(transactions))}</td>
+      </tr>
+    </tfoot>
+  </table>
+)
+
+export default Home
