@@ -13,14 +13,14 @@ export default function Home() {
   const [items, setItems] = useState<IItem[]>([])
   const [isOpen, setIsOpen] = useState(false)
 
-  const fetchItem = useCallback(() => {
+  const fetchItem = useCallback(async () => {
     let url = 'http://localhost:3000/items'
 
-    fetch(url)
-      .then((res) => res.json())
-      .then((data) => {
-        setItems(data)
-      })
+    const response = await axios.get(url)
+
+    if (response.status === 200) {
+      setItems(response.data)
+    }
   }, [])
 
   useEffect(() => {

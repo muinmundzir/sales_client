@@ -1,12 +1,12 @@
 'use client'
 
 import { Fragment, useCallback, useEffect, useState } from 'react'
+import axios from 'axios'
 
 import Headers from '@app/components/Headers'
 import { ICustomer } from '@app/interfaces/customer.interface'
 import { PlusIcon } from '@heroicons/react/24/outline'
 import AddCustomerModal from './components/AddCustomerModal'
-import axios from 'axios'
 
 export default function Home() {
   const [customers, setCustomers] = useState<ICustomer[]>([])

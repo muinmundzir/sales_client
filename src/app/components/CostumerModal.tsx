@@ -44,16 +44,16 @@ export default function CustomerModal({
 
   const debounce = useDebounce(query, 500)
 
-  const fetchConsumer = useCallback(() => {
+  const fetchConsumer = useCallback(async() => {
     let url = 'http://localhost:3000/customers'
 
     if (debounce !== undefined) url = url + `?query=${debounce}`
 
-    fetch(url)
-      .then((res) => res.json())
-      .then((data) => {
-        setCustomers(data)
-      })
+    const response = await axios.get(url)
+
+    if (response.status === 200) {
+      setCustomers(response.data)
+    }
   }, [debounce])
 
   useEffect(() => {
