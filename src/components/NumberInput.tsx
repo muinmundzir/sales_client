@@ -1,16 +1,26 @@
-import { ChangeEvent } from "react"
+import { ChangeEvent } from 'react'
 
 export default function NumberInput({
   label,
   name,
   placeholder,
   onChange,
+  className,
+  value,
+  defaultValue,
+  disabled,
 }: {
-  label: string
+  label?: string
   name: string
-  placeholder: string
-  onChange: (e: ChangeEvent<HTMLInputElement>) => void
+  placeholder?: string
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void
+  className?: string
+  value?: any
+  defaultValue?: any
+  disabled?: boolean
 }) {
+  const baseClassName =
+    'block w-full rounded-md border-0 py-1.5 pl-10 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6'
   return (
     <div>
       <label
@@ -28,8 +38,11 @@ export default function NumberInput({
           name={`${name}`}
           type='text'
           placeholder={`${placeholder}`}
-          className='block w-full rounded-md border-0 py-1.5 pl-10 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6'
+          className={className ? className : baseClassName}
           onChange={onChange}
+          value={value}
+          defaultValue={defaultValue}
+          disabled={disabled}
         />
       </div>
     </div>
