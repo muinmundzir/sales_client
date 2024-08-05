@@ -32,10 +32,14 @@ export default function Home() {
   }
 
   const handleDelete = async (itemId: number) => {
-    let url = `http://localhost:3000/items/${itemId}`
-    const response = await axios.delete(url)
+    try {
+      let url = `http://localhost:3000/items/${itemId}`
+      const response = await axios.delete(url)
 
-    if (response.status === 200) fetchItem()
+      if (response.status === 200) fetchItem()
+    } catch (error) {
+      console.error('Failed to delete item', error)
+    }
   }
 
   return (
@@ -75,7 +79,7 @@ export default function Home() {
                     <td className='py-3 px-1'>{item.code}</td>
                     <td className='py-3 px-1'>{item.name}</td>
                     <td className='py-3 px-1'>
-                      {formatCurrencyIDR(item.price.toString())}
+                      {formatCurrencyIDR(item.price)}
                     </td>
                     <td className='py-3 px-1'>
                       <button
