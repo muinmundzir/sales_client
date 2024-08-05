@@ -1,4 +1,4 @@
-export const formatCurrencyIDR = (amount: string) => {
+export const formatCurrencyIDR = (amount: any) => {
   const number = parseFloat(amount);
   
   if (isNaN(number)) {
