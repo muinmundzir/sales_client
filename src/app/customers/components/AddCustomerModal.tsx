@@ -22,6 +22,11 @@ export default function AddCustomerModal({
     name: '',
     phone: '',
   })
+  const [errors, setErrors] = useState({
+    errorCount: 0,
+    name: '',
+    phone: '',
+  })
 
   useEffect(() => {
     setOpen(isOpen)
@@ -39,15 +44,24 @@ export default function AddCustomerModal({
       ...prevValue,
       [name]: value,
     }))
+    handleClearErrors(name)
+
   }
 
   const handleSubmit = async () => {
-    try {
-      const formData = {
-        name: form.name,
-        phone: form.phone,
-      }
+    const errorCount = validateForm()
 
+    if (errorCount > 0) {
+      alert('Please correct the errors before submitting.')
+      return
+    }
+
+    const formData = {
+      name: form.name,
+      phone: form.phone,
+    }
+
+    try {
       let url = 'http://localhost:3000/customers/create'
 
       const response = await axios.post(url, formData)
@@ -57,8 +71,40 @@ export default function AddCustomerModal({
         handleClose()
       }
     } catch (error) {
-      console.log(error, 'error')
+      console.error('Failed to add new costumer data', error)
     }
+  }
+
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {}
+
+
+    if (form.name === '') {
+      newErrors.name = 'Nama customer tidak boleh kosong'
+    }
+
+    if (form.phone === '') {
+      newErrors.phone = 'Data telepon tidak boleh kosong'
+    }
+
+    const errorCount = Object.keys(newErrors).length
+
+    // Directly update errors state
+    setErrors((prev) => ({
+      ...prev,
+      ...newErrors,
+      errorCount,
+    }))
+
+    return errorCount
+  }
+
+  const handleClearErrors = (field: string) => {
+    setErrors((prev) => ({
+      ...prev,
+      [field]: '',
+      errorCount: prev.errorCount - 1,
+    }))
   }
 
   return (
@@ -88,13 +134,17 @@ export default function AddCustomerModal({
                       label='Nama'
                       name='name'
                       placeholder='John Doe'
-                      onChange={(e) => handleChange(e)}
+                      onChange={handleChange}
+                      error={errors.name}
+                      className={`col-span-2 bg-white w-full border rounded-md py-2 px-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 sm:text-sm ${errors.name ? 'border-red-400' : 'border-slate-300 '}`}
                     />
                     <TextInput
                       label='Telepon'
                       name='phone'
                       placeholder='085123457234'
-                      onChange={(e) => handleChange(e)}
+                      onChange={handleChange}
+                      error={errors.phone}
+                      className={`col-span-2 bg-white w-full border rounded-md py-2 px-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 sm:text-sm ${errors.phone ? 'border-red-400' : 'border-slate-300 '}`}
                     />
                   </div>
                 </div>
