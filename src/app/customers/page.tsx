@@ -8,20 +8,25 @@ import { PlusIcon } from '@heroicons/react/24/outline'
 import Headers from '@app/components/Headers'
 import { ICustomer } from '@app/interfaces/customer.interface'
 import AddCustomerModal from './components/AddCustomerModal'
+import { Loader } from '../components/Loader'
 
 export default function Home() {
   const [customers, setCustomers] = useState<ICustomer[]>([])
   const [isOpen, setIsOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   const fetchCustomer = useCallback(async () => {
     let url = `${process.env.NEXT_PUBLIC_APP_URL}/customers`
 
     try {
+      setIsLoading(true)
       const response = await axios.get(url)
 
       if (response.status === 200) {
         setCustomers(response.data)
       }
+
+      setIsLoading(false)
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const errorMessage =
@@ -91,32 +96,36 @@ export default function Home() {
             </tr>
           </thead>
           <tbody>
-            {customers &&
-              customers?.map((customer: ICustomer, index: number) => {
-                return (
-                  <tr key={customer?.id} className='text-center'>
-                    <td className='py-3 px-1'>{index + 1}</td>
-                    <td className='py-3 px-1'>{customer.name}</td>
-                    <td className='py-3 px-1'>{customer.phone}</td>
-                    <td className='py-3 px-1'>
-                      <button
-                        type='button'
-                        onClick={() => handleDelete(customer)}
-                        className='inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto'
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                )
-              })}
-            {!customers.length && (
+            {isLoading ? (
               <tr>
-                <td colSpan={10} className='py-3 px-1 text-center'>
+                <td colSpan={9} className='py-3 px-1 text-center'>
+                  <Loader />
+                </td>
+              </tr>
+            ) : customers.length === 0 ? (
+              <tr>
+                <td colSpan={9} className='py-3 px-1 text-center'>
                   -- Data kosong --
                 </td>
               </tr>
-            )}
+            ) : (
+              customers?.map((customer: ICustomer, index: number) => (
+                <tr key={customer?.id} className='text-center'>
+                  <td className='py-3 px-1'>{index + 1}</td>
+                  <td className='py-3 px-1'>{customer.name}</td>
+                  <td className='py-3 px-1'>{customer.phone}</td>
+                  <td className='py-3 px-1'>
+                    <button
+                      type='button'
+                      onClick={() => handleDelete(customer)}
+                      className='inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto'
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}{' '}
           </tbody>
         </table>
       </main>

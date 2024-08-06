@@ -10,15 +10,18 @@ import { formatDate } from '@app/helpers/format-date'
 import useDebounce from '@app/hooks/useDebounce'
 import { ITransaction } from '@app/interfaces/transaction.interface'
 import { AddTransactionTable } from './components/AddTransactionTable'
+import { Loader } from './components/Loader'
 
 const Home = () => {
   const [transactions, setTransactions] = useState<ITransaction[]>([])
   const [query, setQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   const debounce = useDebounce(query, 1000)
 
   useEffect(() => {
+    setIsLoading(true)
     const fetchTransaction = async () => {
       const url = debounce
         ? `${process.env.NEXT_PUBLIC_APP_URL}/sales?query=${debounce}`
@@ -28,6 +31,8 @@ const Home = () => {
       if (response.status === 200) {
         setTransactions(response.data)
       }
+
+      setIsLoading(false)
     }
 
     fetchTransaction()
@@ -70,6 +75,7 @@ const Home = () => {
             <TransactionTable
               transactions={transactions}
               calculateTotal={calculateTotal}
+              isLoading={isLoading}
             />
           </>
         )}
@@ -81,11 +87,13 @@ const Home = () => {
 const TransactionTable = ({
   transactions,
   calculateTotal,
+  isLoading,
 }: {
   transactions: ITransaction[]
   calculateTotal: (transactions: ITransaction[]) => number
+  isLoading: boolean
 }) => (
-  <table className='shadow-lg bg-white rounded-lg table-auto overflow-hidden'>
+  <table className='shadow-lg bg-white rounded-lg table-auto overflow-hidden sm:text-sm lg:text-base'>
     <thead>
       <tr className='mx-10 text-center bg-gray-300/80'>
         <th className='py-3 px-1'>No</th>
@@ -100,16 +108,30 @@ const TransactionTable = ({
       </tr>
     </thead>
     <tbody>
-      {transactions.length ? (
+      {isLoading ? (
+        <tr>
+          <td colSpan={9} className='py-3 px-1 text-center'>
+            <Loader />
+          </td>
+        </tr>
+      ) : transactions.length === 0 ? (
+        <tr>
+          <td colSpan={9} className='py-3 px-1 text-center'>
+            -- Data kosong --
+          </td>
+        </tr>
+      ) : (
         transactions.map((transaction, index) => (
           <tr key={transaction.id} className='text-center'>
             <td className='py-3 px-1'>{index + 1}</td>
             <td className='py-3 px-1'>{transaction.code}</td>
             <td className='py-3 px-1'>
-              {formatDate(transaction.date.toString())}
+              {formatDate(transaction.date?.toString() || '')}
             </td>
-            <td className='py-3 px-1'>{transaction.customer?.name}</td>
-            <td className='py-3 px-1'>{transaction.saleDetail[0]?.quantity}</td>
+            <td className='py-3 px-1'>{transaction.customer?.name || '--'}</td>
+            <td className='py-3 px-1'>
+              {transaction.saleDetail?.[0]?.quantity || 0}
+            </td>
             <td className='py-3 px-1'>
               {formatCurrencyIDR(transaction.subtotal)}
             </td>
@@ -124,13 +146,7 @@ const TransactionTable = ({
             </td>
           </tr>
         ))
-      ) : (
-        <tr>
-          <td colSpan={9} className='py-3 px-1 text-center'>
-            -- Data kosong --
-          </td>
-        </tr>
-      )}
+      )}{' '}
     </tbody>
     <tfoot className='bg-gray-200 font-bold text-center'>
       <tr>

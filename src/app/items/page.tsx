@@ -9,12 +9,15 @@ import { PlusIcon } from '@heroicons/react/24/outline'
 import AddItemModal from './components/AddItemModal'
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import { Loader } from '../components/Loader'
 
 export default function Home() {
   const [items, setItems] = useState<IItem[]>([])
   const [isOpen, setIsOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   const fetchItem = useCallback(async () => {
+    setIsLoading(true)
     let url = `${process.env.NEXT_PUBLIC_APP_URL}/items`
 
     const response = await axios.get(url)
@@ -22,6 +25,7 @@ export default function Home() {
     if (response.status === 200) {
       setItems(response.data)
     }
+    setIsLoading(false)
   }, [])
 
   useEffect(() => {
@@ -71,7 +75,7 @@ export default function Home() {
             Add item
           </button>
         </div>
-        <table className='shadow-lg bg-white rounded-lg table-fixed overflow-hidden'>
+        <table className='shadow-lg bg-white rounded-lg table-fixed overflow-hidden sm:text-sm lg:text-base'>
           <thead>
             <tr className='mx-10 text-center bg-gray-300/80'>
               <th className='py-3 px-1'>No</th>
@@ -82,34 +86,36 @@ export default function Home() {
             </tr>
           </thead>
           <tbody>
-            {items &&
-              items?.map((item: IItem, index: number) => {
-                return (
-                  <tr key={item?.id} className='text-center'>
-                    <td className='py-3 px-1'>{index + 1}</td>
-                    <td className='py-3 px-1'>{item.code}</td>
-                    <td className='py-3 px-1'>{item.name}</td>
-                    <td className='py-3 px-1'>
-                      {formatCurrencyIDR(item.price)}
-                    </td>
-                    <td className='py-3 px-1'>
-                      <button
-                        type='button'
-                        onClick={() => handleDelete(item)}
-                        className='inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto'
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                )
-              })}
-            {!items.length && (
+            {isLoading ? (
               <tr>
-                <td colSpan={10} className='py-3 px-1 text-center'>
+                <td colSpan={9} className='py-3 px-1 text-center'>
+                  <Loader />
+                </td>
+              </tr>
+            ) : items.length === 0 ? (
+              <tr>
+                <td colSpan={9} className='py-3 px-1 text-center'>
                   -- Data kosong --
                 </td>
               </tr>
+            ) : (
+              items?.map((item: IItem, index: number) => (
+                <tr key={item?.id} className='text-center'>
+                  <td className='py-3 px-1'>{index + 1}</td>
+                  <td className='py-3 px-1'>{item.code}</td>
+                  <td className='py-3 px-1'>{item.name}</td>
+                  <td className='py-3 px-1'>{formatCurrencyIDR(item.price)}</td>
+                  <td className='py-3 px-1'>
+                    <button
+                      type='button'
+                      onClick={() => handleDelete(item)}
+                      className='inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto'
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
             )}
           </tbody>
         </table>
