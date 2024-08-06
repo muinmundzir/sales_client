@@ -8,6 +8,7 @@ import {
 } from '@headlessui/react'
 import axios from 'axios'
 import { ChangeEvent, useEffect, useState } from 'react'
+import { toast, ToastContainer } from 'react-toastify'
 
 export default function AddItemModal({
   isOpen,
@@ -56,11 +57,21 @@ export default function AddItemModal({
       const response = await axios.post(url, formData)
 
       if (response.status === 201) {
+        toast.success('Data berhasil ditambahkan')
         fetchData()
         handleClose()
       }
     } catch (error) {
-      console.log(error, 'error')
+      if (axios.isAxiosError(error)) {
+
+        const errorMessage =
+          error.response?.data?.message || 'An error occurred'
+        const errorStatus = error.response?.status
+
+        toast.error(`Gagal menghapus data: ${errorMessage}`)
+      } else {
+        toast.error('An unexpected error occurred')
+      }
     }
   }
 
@@ -129,6 +140,7 @@ export default function AddItemModal({
           </DialogPanel>
         </div>
       </div>
+      <ToastContainer />
     </Dialog>
   )
 }
