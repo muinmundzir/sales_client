@@ -27,10 +27,12 @@ const ItemModal = ({
   isOpen,
   onClose,
   onAdd,
+  selectedItem,
 }: {
   isOpen: boolean
   onClose: () => void
   onAdd: (data: IItemForm) => void
+  selectedItem: IItemForm
 }) => {
   const [open, setOpen] = useState(isOpen)
   const [query, setQuery] = useState('')
@@ -54,6 +56,12 @@ const ItemModal = ({
   useEffect(() => {
     setOpen(isOpen)
   }, [isOpen])
+
+  useEffect(() => {
+    if (selectedItem) {
+      setForm(selectedItem)
+    }
+  }, [selectedItem])
 
   useEffect(() => {
     if (query) {
@@ -112,6 +120,20 @@ const ItemModal = ({
     }))
   }
 
+  const clearForm = () => {
+    setForm({
+      itemId: -1,
+      code: '',
+      name: '',
+      price: 0,
+      discountPercentage: 0,
+      quantity: 0,
+      discountAmount: 0,
+      discountPrice: 0,
+      totalAmount: 0,
+    })
+  }
+
   const handleAdd = () => {
     onAdd({
       ...form,
@@ -153,6 +175,7 @@ const ItemModal = ({
                     onSearch={handleSearch}
                     items={items}
                     onSelectItem={handleSelectItem}
+                    selectedItem={form.itemId !== -1}
                   />
                   {form.itemId !== -1 && (
                     <FormSection
@@ -172,7 +195,7 @@ const ItemModal = ({
                 className='inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto'
                 onClick={handleAdd}
               >
-                Tambah
+                {selectedItem.itemId ? 'Ubah' : 'Edit'}
               </button>
               <button
                 type='button'
@@ -180,7 +203,7 @@ const ItemModal = ({
                 onClick={handleClose}
                 className='mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto'
               >
-                Cancel
+                Batal
               </button>
             </div>
           </DialogPanel>
@@ -193,22 +216,26 @@ const ItemModal = ({
 const SearchSection = ({
   query,
   onSearch,
+  selectedItem,
   items,
   onSelectItem,
 }: {
   query: string
   onSearch: (e: React.ChangeEvent<HTMLInputElement>) => void
+  selectedItem: boolean
   items: IItem[]
   onSelectItem: (item: IItem) => void
 }) => (
   <div className='relative mt-2 space-y-4 border-b pb-4'>
-    <TextInput
-      label='Cari'
-      name='search'
-      placeholder='Sapu Elektrik'
-      onChange={onSearch}
-      value={query}
-    />
+    {!selectedItem && (
+      <TextInput
+        label='Cari'
+        name='search'
+        placeholder='Masukkan nama item'
+        onChange={onSearch}
+        value={query}
+      />
+    )}
     {items.length > 0 && (
       <div className='absolute z-10 top-14 left-0 right-0 bg-white border rounded-md sm:text-sm max-h-20 overflow-scroll'>
         {items.map((item) => (

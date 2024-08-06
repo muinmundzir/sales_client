@@ -22,6 +22,17 @@ export const AddTransactionTable = ({
     useState(false)
   const [customer, setCustomer] = useState({ code: null, name: '', phone: '' })
   const [items, setItems] = useState<IItemForm[]>([])
+  const [selectedItem, setSelectedItem] = useState<IItemForm>({
+    itemId: -1,
+    code: '',
+    name: '',
+    price: 0,
+    discountPercentage: 0,
+    quantity: 0,
+    discountAmount: 0,
+    discountPrice: 0,
+    totalAmount: 0,
+  })
   const [errors, setErrors] = useState({
     errorCount: 0,
     date: '',
@@ -51,6 +62,10 @@ export const AddTransactionTable = ({
     }
   }, [])
 
+  const validateNumber = (input: any) => {
+    return /^\d*\.?\d*$/.test(input)
+  }
+
   useEffect(() => {
     fetchTransactionCode()
   }, [fetchTransactionCode])
@@ -62,7 +77,6 @@ export const AddTransactionTable = ({
   }
 
   const handleClearErrors = (field: string) => {
-    console.log(field, 'test')
     setErrors((prev) => ({
       ...prev,
       [field]: '',
@@ -72,7 +86,24 @@ export const AddTransactionTable = ({
 
   const handleCostOptionsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.currentTarget
-    setCostOptions((prev) => ({ ...prev, [name]: Number(value) }))
+
+    const isValidNumber = validateNumber(value)
+
+    if (isValidNumber) {
+      setCostOptions((prev) => ({ ...prev, [name]: Number(value) }))
+      handleClearErrors(name)
+    } else {
+      const newErrors: { [key: string]: string } = {}
+      newErrors[name] = 'Input harus berupa angka'
+
+      const errorCount = Object.keys(newErrors).length
+
+      setErrors((prev) => ({
+        ...prev,
+        ...newErrors,
+        errorCount,
+      }))
+    }
   }
 
   const validateForm = () => {
@@ -162,9 +193,43 @@ export const AddTransactionTable = ({
   }
 
   const handleAddItem = (data: IItemForm) => {
-    setItems((prev) => [...prev, data])
+    const existingItem = items.find((item) => item.itemId === data.itemId)
+
+    if (existingItem) {
+      const newItems = items.filter((item) => item.itemId !== data.itemId)
+
+      setItems([...newItems, data])
+    } else {
+      setItems((prev) => [...prev, data])
+    }
+
     handleClearErrors('details')
     handleCloseModals()
+  }
+
+  const handleRemoveItem = (itemId: number) => {
+    const newItems = items.filter((item) => item.itemId === itemId)
+
+    setItems(newItems)
+  }
+
+  const handleEditItem = (itemId: number) => {
+    const selectedItem = items.find((item) => item.itemId === itemId)
+
+    const item: IItemForm = {
+      itemId: selectedItem?.itemId!,
+      name: selectedItem?.name!,
+      code: selectedItem?.code!,
+      price: selectedItem?.price!,
+      discountPercentage: selectedItem?.discountPercentage!,
+      quantity: selectedItem?.quantity!,
+      discountAmount: selectedItem?.discountAmount!,
+      discountPrice: selectedItem?.discountPrice!,
+      totalAmount: selectedItem?.totalAmount!,
+    }
+
+    setSelectedItem(item)
+    setIsOpenItemModal(true)
   }
 
   return (
@@ -174,6 +239,7 @@ export const AddTransactionTable = ({
           isOpen={isOpenItemModal}
           onClose={handleCloseModals}
           onAdd={handleAddItem}
+          selectedItem={selectedItem}
         />
       )}
       {isOpenCustomerTableModal && (
@@ -224,6 +290,8 @@ export const AddTransactionTable = ({
         </div>
       </section>
       <ItemTable
+        onRemoveItem={handleRemoveItem}
+        onEditItem={handleEditItem}
         items={items}
         setIsOpenItemModal={setIsOpenItemModal}
         error={errors.details}
@@ -240,9 +308,11 @@ export const AddTransactionTable = ({
         sumCostTotal={sumCostTotal}
         isDisabled={isDisabled}
         onChange={handleCostOptionsChange}
+        errors={errors}
       />
       <div className='flex justify-center items-center gap-5 border-t-2 pt-5'>
         <button
+          disabled={errors.errorCount > 0}
           type='button'
           onClick={handleSubmit}
           className='inline-flex w-full justify-center rounded-md bg-green-600 px-3 py-2  font-semibold text-white shadow-sm hover:bg-green-500 sm:ml-3 sm:w-auto'
@@ -298,16 +368,20 @@ const InputRow = ({
 interface ItemTableProps {
   items: IItemForm[]
   setIsOpenItemModal: (status: boolean) => void
+  onRemoveItem: (itemId: number) => void
+  onEditItem: (itemId: number) => void
   error?: string
 }
 
 const ItemTable: React.FC<ItemTableProps> = ({
   items,
   setIsOpenItemModal,
+  onRemoveItem,
+  onEditItem,
   error,
 }) => (
   <table
-    className={`shadow-lg bg-white rounded-lg table-auto border border-collapse border-slate-100 overflow-hidden ${error ? 'border-red-400 border-1' : ''}`}
+    className={`shadow-lg bg-white rounded-lg table-auto border border-collapse  overflow-hidden ${error ? 'border-red-400 border-1' : 'border-slate-100'}`}
   >
     <thead>
       <tr className='mx-10 text-center bg-gray-300/80'>
@@ -353,8 +427,18 @@ const ItemTable: React.FC<ItemTableProps> = ({
       {items.length ? (
         items.map((item, index) => (
           <tr key={item.itemId} className='text-center'>
-            <td className='py-3 px-1'></td>
-            <td className='py-3 px-1'></td>
+            <td
+              className='py-3 px-1 hover:bg-blue-300 hover:text-white cursor-pointer'
+              onClick={() => onEditItem(item.itemId)}
+            >
+              Ubah
+            </td>
+            <td
+              className='py-3 px-1 hover:bg-red-300 hover:text-white cursor-pointer'
+              onClick={() => onRemoveItem(item.itemId)}
+            >
+              Hapus
+            </td>
             <td className='py-3 px-1'>{index + 1}</td>
             <td className='py-3 px-1'>{item.code}</td>
             <td className='py-3 px-1'>{item.name}</td>
@@ -388,6 +472,7 @@ const CostOptions = ({
   sumCostTotal,
   isDisabled,
   onChange,
+  errors,
 }: {
   discount: number
   shippingCost: number
@@ -395,6 +480,7 @@ const CostOptions = ({
   sumCostTotal: number
   isDisabled: boolean
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  errors?: any
 }) => (
   <section className='w-full mb-4 flex justify-end'>
     <div className='space-y-3 text-right'>
@@ -405,6 +491,7 @@ const CostOptions = ({
         value={discount}
         onChange={onChange}
         isDisabled={isDisabled}
+        error={errors.discount}
       />
       <CostOptionRow
         label='Ongkir'
@@ -412,6 +499,7 @@ const CostOptions = ({
         value={shippingCost}
         onChange={onChange}
         isDisabled={isDisabled}
+        error={errors.shippingCost}
       />
       <CostOptionRow
         label='Total Bayar'
@@ -427,12 +515,14 @@ const CostOptionRow = ({
   inputName,
   onChange,
   isDisabled,
+  error,
 }: {
   label: string
   value: number | string
   inputName?: string
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
   isDisabled?: boolean
+  error?: string
 }) => (
   <Fragment>
     <div className='grid grid-cols-2 items-center gap-3 relative rounded-md'>
@@ -441,9 +531,10 @@ const CostOptionRow = ({
         <NumberInput
           defaultValue={value}
           name={inputName}
-          className={`bg-white text-right w-full border border-slate-300 rounded-md py-2 px-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 ${isDisabled ? 'cursor-not-allowed bg-gray-300/45' : ''}`}
+          className={`bg-white text-right w-full border rounded-md py-2 px-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 ${isDisabled ? 'cursor-not-allowed bg-gray-300/45' : ''} ${error ? 'border-red-400 focus:border-none focus:ring-none' : 'border-slate-300 '}`}
           onChange={onChange}
           disabled={isDisabled}
+          error={error}
         />
       ) : (
         <span className='text-right px-3'>{value}</span>
