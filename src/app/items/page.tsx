@@ -8,6 +8,7 @@ import { IItem } from '@app/interfaces/item.interface'
 import { PlusIcon } from '@heroicons/react/24/outline'
 import AddItemModal from './components/AddItemModal'
 import axios from 'axios'
+import { toast, ToastContainer } from 'react-toastify'
 
 export default function Home() {
   const [items, setItems] = useState<IItem[]>([])
@@ -31,14 +32,26 @@ export default function Home() {
     setIsOpen(false)
   }
 
-  const handleDelete = async (itemId: number) => {
+  const handleDelete = async (item: IItem) => {
     try {
-      let url = `http://localhost:3000/items/${itemId}`
+      let url = `http://localhost:3000/items/${item.id}`
       const response = await axios.delete(url)
 
-      if (response.status === 200) fetchItem()
+      if (response.status === 200) {
+        toast.success(`Item ${item.name} berhasil dihapus`)
+        fetchItem()
+      }
     } catch (error) {
-      console.error('Failed to delete item', error)
+      if (axios.isAxiosError(error)) {
+
+        const errorMessage =
+          error.response?.data?.message || 'An error occurred'
+        const errorStatus = error.response?.status
+
+        toast.error(`Gagal menghapus data: ${errorMessage}`)
+      } else {
+        toast.error('An unexpected error occurred')
+      }
     }
   }
 
@@ -84,7 +97,7 @@ export default function Home() {
                     <td className='py-3 px-1'>
                       <button
                         type='button'
-                        onClick={() => handleDelete(item.id)}
+                        onClick={() => handleDelete(item)}
                         className='inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto'
                       >
                         Delete
@@ -103,6 +116,7 @@ export default function Home() {
           </tbody>
         </table>
       </main>
+      <ToastContainer />
     </Fragment>
   )
 }
