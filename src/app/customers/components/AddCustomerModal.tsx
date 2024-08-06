@@ -7,6 +7,7 @@ import {
 } from '@headlessui/react'
 import axios from 'axios'
 import { ChangeEvent, useEffect, useState } from 'react'
+import { toast, ToastContainer } from 'react-toastify'
 
 export default function AddCustomerModal({
   isOpen,
@@ -45,14 +46,13 @@ export default function AddCustomerModal({
       [name]: value,
     }))
     handleClearErrors(name)
-
   }
 
   const handleSubmit = async () => {
     const errorCount = validateForm()
 
     if (errorCount > 0) {
-      alert('Please correct the errors before submitting.')
+      toast.error('Ada kesalahan isian pada form')
       return
     }
 
@@ -67,17 +67,25 @@ export default function AddCustomerModal({
       const response = await axios.post(url, formData)
 
       if (response.status === 201) {
+        toast.success('Data berhasil ditambahkan')
         fetchData()
         handleClose()
       }
     } catch (error) {
-      console.error('Failed to add new costumer data', error)
+      if (axios.isAxiosError(error)) {
+        const errorMessage =
+          error.response?.data?.message || 'Terjadi kesalahan'
+        const errorStatus = error.response?.status
+
+        toast.error(`Gagal menghapus data: ${errorMessage}`)
+      } else {
+        toast.error('An unexpected error occurred')
+      }
     }
   }
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {}
-
 
     if (form.name === '') {
       newErrors.name = 'Nama customer tidak boleh kosong'
@@ -170,6 +178,7 @@ export default function AddCustomerModal({
           </DialogPanel>
         </div>
       </div>
+      <ToastContainer />
     </Dialog>
   )
 }

@@ -45,7 +45,7 @@ export default function Home() {
       if (axios.isAxiosError(error)) {
 
         const errorMessage =
-          error.response?.data?.message || 'An error occurred'
+          error.response?.data?.message || 'Terjadi kesalahan'
         const errorStatus = error.response?.status
 
         toast.error(`Gagal menghapus data: ${errorMessage}`)

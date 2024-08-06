@@ -5,6 +5,7 @@ import ItemModal, { IItemForm } from './ItemModal'
 import CustomerModal, { CustomerForm } from './CostumerModal'
 import NumberInput from '@app/components/NumberInput'
 import { formatCurrencyIDR } from '@app/helpers/format-currency'
+import { toast, ToastContainer } from 'react-toastify'
 
 export const AddTransactionTable = ({
   onCancelAdd,
@@ -46,7 +47,7 @@ export const AddTransactionTable = ({
         setTransaction((prev) => ({ ...prev, code: response.data }))
       }
     } catch (error) {
-      console.error('Failed to fetch transaction code', error)
+      toast.error('Failed to fetch transaction code', error)
     }
   }, [])
 
@@ -113,7 +114,7 @@ export const AddTransactionTable = ({
     const errorCount = validateForm()
 
     if (errorCount > 0) {
-      alert('Please correct the errors before submitting.')
+      toast.error('Ada kesalahan isian pada form')
       return
     }
 
@@ -134,11 +135,21 @@ export const AddTransactionTable = ({
       )
 
       if (response.status === 201) {
+        toast.success('Data berhasil disimpan')
         handleCloseModals()
         onCancelAdd()
       }
     } catch (error) {
-      console.error('Failed to submit transaction', error)
+      if (axios.isAxiosError(error)) {
+        const errorMessage =
+          error.response?.data?.message || 'Terjadi kesalahan'
+        const errorStatus = error.response?.status
+
+        toast.error(`Gagal menyimpane data: ${errorMessage}`)
+      } else {
+        toast.error('An unexpected error occurred')
+      }
+    }
     }
   }
 
@@ -425,18 +436,21 @@ const CostOptionRow = ({
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
   isDisabled?: boolean
 }) => (
-  <div className='grid grid-cols-2 items-center gap-3 relative rounded-md'>
-    <p className='col-end-2'>{label}</p>
-    {inputName ? (
-      <NumberInput
-        defaultValue={value}
-        name={inputName}
-        className={`bg-white text-right w-full border border-slate-300 rounded-md py-2 px-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 ${isDisabled ? 'cursor-not-allowed bg-gray-300/45' : ''}`}
-        onChange={onChange}
-        disabled={isDisabled}
-      />
-    ) : (
-      <span className='text-right px-3'>{value}</span>
-    )}
-  </div>
+  <Fragment>
+    <div className='grid grid-cols-2 items-center gap-3 relative rounded-md'>
+      <p className='col-end-2'>{label}</p>
+      {inputName ? (
+        <NumberInput
+          defaultValue={value}
+          name={inputName}
+          className={`bg-white text-right w-full border border-slate-300 rounded-md py-2 px-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 ${isDisabled ? 'cursor-not-allowed bg-gray-300/45' : ''}`}
+          onChange={onChange}
+          disabled={isDisabled}
+        />
+      ) : (
+        <span className='text-right px-3'>{value}</span>
+      )}
+    </div>
+    <ToastContainer />
+  </Fragment>
 )

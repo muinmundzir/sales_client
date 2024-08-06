@@ -7,6 +7,7 @@ import Headers from '@app/components/Headers'
 import { ICustomer } from '@app/interfaces/customer.interface'
 import { PlusIcon } from '@heroicons/react/24/outline'
 import AddCustomerModal from './components/AddCustomerModal'
+import { toast, ToastContainer } from 'react-toastify'
 
 export default function Home() {
   const [customers, setCustomers] = useState<ICustomer[]>([])
@@ -30,11 +31,26 @@ export default function Home() {
     setIsOpen(false)
   }
 
-  const handleDelete = async (customerId: number) => {
-    let url = `http://localhost:3000/customers/${customerId}`
-    const response = await axios.delete(url)
+  const handleDelete = async (customer: ICustomer) => {
+    try {
+      let url = `http://localhost:3000/customers/${customer.id}`
+      const response = await axios.delete(url)
 
-    if (response.status === 200) fetchCustomer()
+      if (response.status === 200) {
+        toast.success(`Customer ${customer.name} berhasil dihapus`)
+        fetchCustomer()
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const errorMessage =
+          error.response?.data?.message || 'Terjadi kesalahan'
+        const errorStatus = error.response?.status
+
+        toast.error(`Gagal menghapus data: ${errorMessage}`)
+      } else {
+        toast.error('An unexpected error occurred')
+      }
+    }
   }
 
   return (
@@ -75,7 +91,7 @@ export default function Home() {
                     <td className='py-3 px-1'>
                       <button
                         type='button'
-                        onClick={() => handleDelete(customer.id)}
+                        onClick={() => handleDelete(customer)}
                         className='inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto'
                       >
                         Delete
@@ -94,6 +110,7 @@ export default function Home() {
           </tbody>
         </table>
       </main>
+      <ToastContainer />
     </Fragment>
   )
 }
