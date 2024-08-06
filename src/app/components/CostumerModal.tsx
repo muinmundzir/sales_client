@@ -11,7 +11,7 @@ import axios from 'axios'
 import { useCallback, useEffect, useState } from 'react'
 
 export interface CustomerForm {
-  code: number | null
+  code: number
   name: string
   phone: string
 }
@@ -29,7 +29,7 @@ export default function CustomerModal({
   const [query, setQuery] = useState('')
   const [customers, setCustomers] = useState<ICustomer[]>([])
   const [form, setForm] = useState<CustomerForm>({
-    code: null,
+    code: -1,
     name: '',
     phone: '',
   })
@@ -136,7 +136,7 @@ export default function CustomerModal({
                     <TextInput
                       label='Code'
                       name='code'
-                      defaultValue={form.code}
+                      defaultValue={form.code === -1 ? '' : form.code}
                       attributes={{ readOnly: true, disabled: true }}
                       className={`bg-gray-300/45 cursor-not-allowed text-sm w-full border border-slate-300 rounded-md py-2 px-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 cursor-not-allowed' }`}
                     />

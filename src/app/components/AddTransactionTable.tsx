@@ -20,7 +20,7 @@ export const AddTransactionTable = ({
   const [isOpenItemModal, setIsOpenItemModal] = useState(false)
   const [isOpenCustomerTableModal, setIsOpenCustomerTableModal] =
     useState(false)
-  const [customer, setCustomer] = useState({ code: null, name: '', phone: '' })
+  const [customer, setCustomer] = useState({ code: -1, name: '', phone: '' })
   const [items, setItems] = useState<IItemForm[]>([])
   const [selectedItem, setSelectedItem] = useState<IItemForm>({
     itemId: -1,
@@ -188,7 +188,14 @@ export const AddTransactionTable = ({
   }
 
   const handleAddCustomer = (data: CustomerForm) => {
-    setCustomer(data)
+    const costumerData = {
+      code: data.code,
+      name: data.name,
+      phone: data.phone,
+    }
+
+    setCustomer(costumerData)
+
     handleCloseModals()
   }
 
@@ -270,7 +277,7 @@ export const AddTransactionTable = ({
           <p className='text-xl font-bold border-b border-1 pb-1'>Customer</p>
           <InputRow
             label='Kode'
-            value={customer.code || ''}
+            value={customer.code === -1 ? '' : customer.code.toString()}
             onClick={() => setIsOpenCustomerTableModal(true)}
             attributes={{ readOnly: true }}
             error={errors.customerId}

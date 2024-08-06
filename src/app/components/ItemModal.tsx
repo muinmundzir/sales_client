@@ -63,12 +63,6 @@ const ItemModal = ({
     }
   }, [selectedItem])
 
-  useEffect(() => {
-    if (query) {
-      fetchItems()
-    }
-  }, [query])
-
   const debounce = useDebounce(query, 500)
 
   const fetchItems = useCallback(async () => {
@@ -82,6 +76,12 @@ const ItemModal = ({
       setItems(response.data)
     }
   }, [debounce])
+
+  useEffect(() => {
+    if (query) {
+      fetchItems()
+    }
+  }, [query, fetchItems])
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.currentTarget.value || '')
@@ -145,6 +145,7 @@ const ItemModal = ({
   }
 
   const handleClose = () => {
+    clearForm()
     setOpen(false)
     onClose()
   }
