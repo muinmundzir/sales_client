@@ -1,13 +1,13 @@
 'use client'
 
-import { Fragment, useCallback, useEffect, useState } from 'react'
 import axios from 'axios'
+import { Fragment, useCallback, useEffect, useState } from 'react'
+import { toast } from 'react-toastify'
+import { PlusIcon } from '@heroicons/react/24/outline'
 
 import Headers from '@app/components/Headers'
 import { ICustomer } from '@app/interfaces/customer.interface'
-import { PlusIcon } from '@heroicons/react/24/outline'
 import AddCustomerModal from './components/AddCustomerModal'
-import { toast, ToastContainer } from 'react-toastify'
 
 export default function Home() {
   const [customers, setCustomers] = useState<ICustomer[]>([])
@@ -37,9 +37,7 @@ export default function Home() {
       const response = await axios.delete(url)
 
       if (response.status === 200) {
-        toast.success(`Customer ${customer.name} berhasil dihapus`, {
-          position: 'top-center',
-        })
+        toast.success(`Customer ${customer.name} berhasil dihapus`)
         fetchCustomer()
       }
     } catch (error) {
@@ -47,13 +45,9 @@ export default function Home() {
         const errorMessage =
           error.response?.data?.message || 'Terjadi kesalahan'
 
-        toast.error(`Gagal menghapus data: ${errorMessage}`, {
-          position: 'top-center',
-        })
+        toast.error(`Gagal menghapus data: ${errorMessage}`)
       } else {
-        toast.error('An unexpected error occurred', {
-          position: 'top-center',
-        })
+        toast.error('An unexpected error occurred')
       }
     }
   }
@@ -115,7 +109,6 @@ export default function Home() {
           </tbody>
         </table>
       </main>
-      <ToastContainer />
     </Fragment>
   )
 }

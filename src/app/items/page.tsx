@@ -8,7 +8,7 @@ import { IItem } from '@app/interfaces/item.interface'
 import { PlusIcon } from '@heroicons/react/24/outline'
 import AddItemModal from './components/AddItemModal'
 import axios from 'axios'
-import { toast, ToastContainer } from 'react-toastify'
+import { toast } from 'react-toastify'
 
 export default function Home() {
   const [items, setItems] = useState<IItem[]>([])
@@ -38,9 +38,7 @@ export default function Home() {
       const response = await axios.delete(url)
 
       if (response.status === 200) {
-        toast.success(`Item ${item.name} berhasil dihapus`, {
-          position: 'top-center',
-        })
+        toast.success(`Item ${item.name} berhasil dihapus`)
         fetchItem()
       }
     } catch (error) {
@@ -48,13 +46,9 @@ export default function Home() {
         const errorMessage =
           error.response?.data?.message || 'Terjadi kesalahan'
 
-        toast.error(`Gagal menghapus data: ${errorMessage}`, {
-          position: 'top-center',
-        })
+        toast.error(`Gagal menghapus data: ${errorMessage}`)
       } else {
-        toast.error('An unexpected error occurred', {
-          position: 'top-center',
-        })
+        toast.error('An unexpected error occurred')
       }
     }
   }
@@ -120,7 +114,6 @@ export default function Home() {
           </tbody>
         </table>
       </main>
-      <ToastContainer />
     </Fragment>
   )
 }

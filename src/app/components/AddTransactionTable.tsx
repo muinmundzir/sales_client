@@ -5,7 +5,7 @@ import ItemModal, { IItemForm } from './ItemModal'
 import CustomerModal, { CustomerForm } from './CostumerModal'
 import NumberInput from '@app/components/NumberInput'
 import { formatCurrencyIDR } from '@app/helpers/format-currency'
-import { toast, ToastContainer } from 'react-toastify'
+import { toast } from 'react-toastify'
 
 export const AddTransactionTable = ({
   onCancelAdd,
@@ -135,9 +135,7 @@ export const AddTransactionTable = ({
       )
 
       if (response.status === 201) {
-        toast.success('Data berhasil disimpan', {
-          position: 'top-center',
-        })
+        toast.success('Data berhasil disimpan')
         handleCloseModals()
         onCancelAdd()
       }
@@ -146,13 +144,9 @@ export const AddTransactionTable = ({
         const errorMessage =
           error.response?.data?.message || 'Terjadi kesalahan'
 
-        toast.error(`Gagal menyimpane data: ${errorMessage}`, {
-          position: 'top-center',
-        })
+        toast.error(`Gagal menyimpane data: ${errorMessage}`)
       } else {
-        toast.error('An unexpected error occurred', {
-          position: 'top-center',
-        })
+        toast.error('An unexpected error occurred')
       }
     }
   }
@@ -455,6 +449,5 @@ const CostOptionRow = ({
         <span className='text-right px-3'>{value}</span>
       )}
     </div>
-    <ToastContainer />
   </Fragment>
 )

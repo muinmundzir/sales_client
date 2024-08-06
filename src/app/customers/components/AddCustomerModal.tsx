@@ -7,7 +7,7 @@ import {
 } from '@headlessui/react'
 import axios from 'axios'
 import { ChangeEvent, useEffect, useState } from 'react'
-import { toast, ToastContainer } from 'react-toastify'
+import { toast } from 'react-toastify'
 
 export default function AddCustomerModal({
   isOpen,
@@ -34,6 +34,13 @@ export default function AddCustomerModal({
   }, [isOpen])
 
   const handleClose = () => {
+    Object.keys(errors).forEach((key) => {
+      const value = key
+      if (value) {
+        handleClearErrors(value)
+      }
+    })
+
     setOpen(false)
     onClose()
   }
@@ -52,10 +59,7 @@ export default function AddCustomerModal({
     const errorCount = validateForm()
 
     if (errorCount > 0) {
-      toast.error('Ada kesalahan isian pada form', {
-        position: 'top-center',
-      })
-      return
+      return toast.error('Ada kesalahan isian pada form')
     }
 
     const formData = {
@@ -69,24 +73,18 @@ export default function AddCustomerModal({
       const response = await axios.post(url, formData)
 
       if (response.status === 201) {
-        toast.success('Data berhasil ditambahkan', {
-          position: 'top-center',
-        })
+        toast.success('Data berhasil ditambahkan')
         handleClose()
-        // fetchData()
+        fetchData()
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const errorMessage =
           error.response?.data?.message || 'Terjadi kesalahan'
 
-        toast.error(`Gagal menghapus data: ${errorMessage}`, {
-          position: 'top-center',
-        })
+        toast.error(`Gagal menghapus data: ${errorMessage}`)
       } else {
-        toast.error('An unexpected error occurred', {
-          position: 'top-center',
-        })
+        toast.error('An unexpected error occurred')
       }
     }
   }
@@ -185,7 +183,6 @@ export default function AddCustomerModal({
           </DialogPanel>
         </div>
       </div>
-      <ToastContainer />
     </Dialog>
   )
 }

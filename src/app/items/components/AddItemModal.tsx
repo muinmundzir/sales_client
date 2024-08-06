@@ -8,7 +8,7 @@ import {
 } from '@headlessui/react'
 import axios from 'axios'
 import { ChangeEvent, useEffect, useState } from 'react'
-import { toast, ToastContainer } from 'react-toastify'
+import { toast } from 'react-toastify'
 
 export default function AddItemModal({
   isOpen,
@@ -25,6 +25,12 @@ export default function AddItemModal({
     name: '',
     price: '',
   })
+  const [errors, setErrors] = useState({
+    errorCount: 0,
+    code: '',
+    name: '',
+    price: '',
+  })
 
   useEffect(() => {
     setOpen(isOpen)
@@ -33,6 +39,13 @@ export default function AddItemModal({
   const handleClose = () => {
     setOpen(false)
     onClose()
+
+    Object.keys(errors).forEach((key) => {
+      const value = key
+      if (value) {
+        handleClearErrors(value)
+      }
+    })
   }
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -42,37 +55,79 @@ export default function AddItemModal({
       ...prevValue,
       [name]: value,
     }))
+    handleClearErrors(name)
+  }
+
+  const handleClearErrors = (field: string) => {
+    setErrors((prev) => ({
+      ...prev,
+      [field]: '',
+      errorCount: prev.errorCount - 1,
+    }))
   }
 
   const handleSubmit = async () => {
-    try {
-      const formData = {
-        name: form.name,
-        code: form.code,
-        price: form.price,
-      }
+    const errorCount = validateForm()
 
+    if (errorCount > 0) {
+      toast.error('Ada kesalahan isian pada form')
+      return
+    }
+
+    const formData = {
+      name: form.name,
+      code: form.code,
+      price: form.price,
+    }
+
+    try {
       let url = 'http://localhost:3000/items/create'
 
       const response = await axios.post(url, formData)
 
       if (response.status === 201) {
-        toast.success('Data berhasil ditambahkan')
+        toast.success('Data berhasil disimpan')
         fetchData()
-        handleClose()
+        setOpen(false)
+        onClose()
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-
         const errorMessage =
-          error.response?.data?.message || 'An error occurred'
-        const errorStatus = error.response?.status
+          error.response?.data?.message || 'Terjadi kesalahan'
 
-        toast.error(`Gagal menghapus data: ${errorMessage}`)
+        toast.error(`Gagal menginput data: ${errorMessage}`)
       } else {
         toast.error('An unexpected error occurred')
       }
     }
+  }
+
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {}
+
+    if (form.name === '') {
+      newErrors.name = 'Nama barang tidak boleh kosong'
+    }
+
+    if (form.code === '') {
+      newErrors.code = 'Kode barang tidak boleh kosong'
+    }
+
+    if (form.price === '') {
+      newErrors.price = 'Harga tidak boleh kosong'
+    }
+
+    const errorCount = Object.keys(newErrors).length
+
+    // Directly update errors state
+    setErrors((prev) => ({
+      ...prev,
+      ...newErrors,
+      errorCount,
+    }))
+
+    return errorCount
   }
 
   return (
@@ -103,18 +158,24 @@ export default function AddItemModal({
                       name='code'
                       placeholder='XXX-000'
                       onChange={(e) => handleChange(e)}
+                      error={errors.code}
+                      className={`col-span-2 bg-white w-full border rounded-md py-2 px-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 sm:text-sm ${errors.code ? 'border-red-400' : 'border-slate-300 '}`}
                     />
                     <TextInput
                       label='Nama'
                       name='name'
                       placeholder='RTX 4060 Ti'
                       onChange={(e) => handleChange(e)}
+                      error={errors.name}
+                      className={`col-span-2 bg-white w-full border rounded-md py-2 px-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 sm:text-sm ${errors.name ? 'border-red-400' : 'border-slate-300 '}`}
                     />
                     <NumberInput
                       label='Price'
                       name='price'
                       placeholder='6000000'
                       onChange={(e) => handleChange(e)}
+                      error={errors.price}
+                      className={`col-span-2 bg-white w-full border rounded-md py-2 pl-10 pr-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 sm:text-sm ${errors.price ? 'border-red-400' : 'border-slate-300 '}`}
                     />
                   </div>
                 </div>
@@ -140,7 +201,6 @@ export default function AddItemModal({
           </DialogPanel>
         </div>
       </div>
-      <ToastContainer />
     </Dialog>
   )
 }
