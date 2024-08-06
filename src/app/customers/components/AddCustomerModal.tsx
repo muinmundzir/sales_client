@@ -34,6 +34,7 @@ export default function AddCustomerModal({
   }, [isOpen])
 
   const handleClose = () => {
+    clearForm()
     Object.keys(errors).forEach((key) => {
       const value = key
       if (value) {
@@ -44,6 +45,14 @@ export default function AddCustomerModal({
     setOpen(false)
     onClose()
   }
+
+  const clearForm = () => {
+    setForm({
+      name: '',
+      phone: '',
+    })
+  }
+
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.currentTarget

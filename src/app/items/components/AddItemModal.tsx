@@ -36,16 +36,25 @@ export default function AddItemModal({
     setOpen(isOpen)
   }, [isOpen])
 
-  const handleClose = () => {
-    setOpen(false)
-    onClose()
+  const clearForm = () => {
+    setForm({
+      code: '',
+      name: '',
+      price: '',
+    })
+  }
 
+  const handleClose = () => {
+    clearForm()
     Object.keys(errors).forEach((key) => {
       const value = key
       if (value) {
         handleClearErrors(value)
       }
     })
+
+    setOpen(false)
+    onClose()
   }
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
