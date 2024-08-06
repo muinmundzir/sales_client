@@ -81,7 +81,7 @@ export default function AddItemModal({
     }
 
     try {
-      let url = 'http://localhost:3000/items/create'
+      let url = `${process.env.NEXT_PUBLIC_APP_URL}/items/create`
 
       const response = await axios.post(url, formData)
 

@@ -130,7 +130,7 @@ export const AddTransactionTable = ({
 
     try {
       const response = await axios.post(
-        'http://localhost:3000/sales/create',
+        `${process.env.NEXT_PUBLIC_APP_URL}/sales/create`,
         data,
       )
 

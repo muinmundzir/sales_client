@@ -65,8 +65,8 @@ const ItemModal = ({
 
   const fetchItems = useCallback(async () => {
     const url = debounce
-      ? `http://localhost:3000/items?query=${debounce}`
-      : 'http://localhost:3000/items'
+      ? `${process.env.NEXT_PUBLIC_APP_URL}/items?query=${debounce}`
+      : `${process.env.NEXT_PUBLIC_APP_URL}/items`
 
     const response = await axios.get(url)
 

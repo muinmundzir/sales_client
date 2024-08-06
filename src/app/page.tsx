@@ -1,14 +1,15 @@
 'use client'
 
-import { Fragment, useCallback, useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import Headers from '@app/components/Headers'
+import axios from 'axios'
+import { PlusIcon } from '@heroicons/react/24/outline'
+
 import { formatCurrencyIDR } from '@app/helpers/format-currency'
 import { formatDate } from '@app/helpers/format-date'
 import useDebounce from '@app/hooks/useDebounce'
 import { ITransaction } from '@app/interfaces/transaction.interface'
-import { PlusIcon } from '@heroicons/react/24/outline'
 import { AddTransactionTable } from './components/AddTransactionTable'
-import axios from 'axios'
 
 const Home = () => {
   const [transactions, setTransactions] = useState<ITransaction[]>([])
@@ -20,8 +21,8 @@ const Home = () => {
   useEffect(() => {
     const fetchTransaction = async () => {
       const url = debounce
-        ? `http://localhost:3000/sales?query=${debounce}`
-        : 'http://localhost:3000/sales'
+        ? `${process.env.NEXT_PUBLIC_APP_URL}/sales?query=${debounce}`
+        : `${process.env.NEXT_PUBLIC_APP_URL}/sales`
       const response = await axios.get(url)
 
       if (response.status === 200) {

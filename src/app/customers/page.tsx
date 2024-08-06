@@ -14,12 +14,23 @@ export default function Home() {
   const [isOpen, setIsOpen] = useState(false)
 
   const fetchCustomer = useCallback(async () => {
-    let url = 'http://localhost:3000/customers'
+    let url = `${process.env.NEXT_PUBLIC_APP_URL}/customers`
 
-    const response = await axios.get(url)
+    try {
+      const response = await axios.get(url)
 
-    if (response.status === 200) {
-      setCustomers(response.data)
+      if (response.status === 200) {
+        setCustomers(response.data)
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const errorMessage =
+          error.response?.data?.message || 'Terjadi kesalahan'
+
+        toast.error(`${errorMessage}`)
+      } else {
+        toast.error('An unexpected error occurred')
+      }
     }
   }, [])
 
@@ -33,7 +44,7 @@ export default function Home() {
 
   const handleDelete = async (customer: ICustomer) => {
     try {
-      let url = `http://localhost:3000/customers/${customer.id}`
+      let url = `${process.env.NEXT_PUBLIC_APP_URL}/customers/${customer.id}`
       const response = await axios.delete(url)
 
       if (response.status === 200) {

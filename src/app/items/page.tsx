@@ -15,7 +15,7 @@ export default function Home() {
   const [isOpen, setIsOpen] = useState(false)
 
   const fetchItem = useCallback(async () => {
-    let url = 'http://localhost:3000/items'
+    let url = `${process.env.NEXT_PUBLIC_APP_URL}/items`
 
     const response = await axios.get(url)
 
@@ -34,7 +34,7 @@ export default function Home() {
 
   const handleDelete = async (item: IItem) => {
     try {
-      let url = `http://localhost:3000/items/${item.id}`
+      let url = `${process.env.NEXT_PUBLIC_APP_URL}/items/${item.id}`
       const response = await axios.delete(url)
 
       if (response.status === 200) {

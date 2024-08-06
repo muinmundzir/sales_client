@@ -7,6 +7,7 @@ import {
   DialogPanel,
   DialogTitle,
 } from '@headlessui/react'
+import axios from 'axios'
 import { useCallback, useEffect, useState } from 'react'
 
 export interface CustomerForm {
@@ -44,8 +45,8 @@ export default function CustomerModal({
 
   const debounce = useDebounce(query, 500)
 
-  const fetchConsumer = useCallback(async() => {
-    let url = 'http://localhost:3000/customers'
+  const fetchConsumer = useCallback(async () => {
+    let url = `${process.env.NEXT_PUBLIC_APP_URL}/customers`
 
     if (debounce !== undefined) url = url + `?query=${debounce}`
 

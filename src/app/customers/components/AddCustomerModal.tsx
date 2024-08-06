@@ -68,7 +68,7 @@ export default function AddCustomerModal({
     }
 
     try {
-      let url = 'http://localhost:3000/customers/create'
+      let url = `${process.env.NEXT_PUBLIC_APP_URL}/customers/create`
 
       const response = await axios.post(url, formData)
 
