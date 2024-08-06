@@ -47,7 +47,7 @@ export const AddTransactionTable = ({
         setTransaction((prev) => ({ ...prev, code: response.data }))
       }
     } catch (error) {
-      toast.error('Failed to fetch transaction code', error)
+      toast.error('Failed to fetch transaction code')
     }
   }, [])
 
@@ -135,7 +135,9 @@ export const AddTransactionTable = ({
       )
 
       if (response.status === 201) {
-        toast.success('Data berhasil disimpan')
+        toast.success('Data berhasil disimpan', {
+          position: 'top-center',
+        })
         handleCloseModals()
         onCancelAdd()
       }
@@ -143,13 +145,15 @@ export const AddTransactionTable = ({
       if (axios.isAxiosError(error)) {
         const errorMessage =
           error.response?.data?.message || 'Terjadi kesalahan'
-        const errorStatus = error.response?.status
 
-        toast.error(`Gagal menyimpane data: ${errorMessage}`)
+        toast.error(`Gagal menyimpane data: ${errorMessage}`, {
+          position: 'top-center',
+        })
       } else {
-        toast.error('An unexpected error occurred')
+        toast.error('An unexpected error occurred', {
+          position: 'top-center',
+        })
       }
-    }
     }
   }
 

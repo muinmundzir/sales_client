@@ -52,7 +52,9 @@ export default function AddCustomerModal({
     const errorCount = validateForm()
 
     if (errorCount > 0) {
-      toast.error('Ada kesalahan isian pada form')
+      toast.error('Ada kesalahan isian pada form', {
+        position: 'top-center',
+      })
       return
     }
 
@@ -67,19 +69,24 @@ export default function AddCustomerModal({
       const response = await axios.post(url, formData)
 
       if (response.status === 201) {
-        toast.success('Data berhasil ditambahkan')
-        fetchData()
+        toast.success('Data berhasil ditambahkan', {
+          position: 'top-center',
+        })
         handleClose()
+        // fetchData()
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const errorMessage =
           error.response?.data?.message || 'Terjadi kesalahan'
-        const errorStatus = error.response?.status
 
-        toast.error(`Gagal menghapus data: ${errorMessage}`)
+        toast.error(`Gagal menghapus data: ${errorMessage}`, {
+          position: 'top-center',
+        })
       } else {
-        toast.error('An unexpected error occurred')
+        toast.error('An unexpected error occurred', {
+          position: 'top-center',
+        })
       }
     }
   }

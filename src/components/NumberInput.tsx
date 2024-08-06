@@ -9,6 +9,7 @@ export default function NumberInput({
   value,
   defaultValue,
   disabled,
+  error,
 }: {
   label?: string
   name: string
@@ -18,6 +19,7 @@ export default function NumberInput({
   value?: any
   defaultValue?: any
   disabled?: boolean
+  error?: string
 }) {
   const baseClassName =
     'block w-full rounded-md border-0 py-1.5 pl-10 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6'
@@ -45,6 +47,9 @@ export default function NumberInput({
           disabled={disabled}
         />
       </div>
+      <span className='col-start-2 col-span-2 text-xs text-red-400'>
+        {error}
+      </span>
     </div>
   )
 }

@@ -37,18 +37,23 @@ export default function Home() {
       const response = await axios.delete(url)
 
       if (response.status === 200) {
-        toast.success(`Customer ${customer.name} berhasil dihapus`)
+        toast.success(`Customer ${customer.name} berhasil dihapus`, {
+          position: 'top-center',
+        })
         fetchCustomer()
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const errorMessage =
           error.response?.data?.message || 'Terjadi kesalahan'
-        const errorStatus = error.response?.status
 
-        toast.error(`Gagal menghapus data: ${errorMessage}`)
+        toast.error(`Gagal menghapus data: ${errorMessage}`, {
+          position: 'top-center',
+        })
       } else {
-        toast.error('An unexpected error occurred')
+        toast.error('An unexpected error occurred', {
+          position: 'top-center',
+        })
       }
     }
   }
