@@ -315,14 +315,14 @@ export const AddTransactionTable = ({
           disabled={errors.errorCount > 0}
           type='button'
           onClick={handleSubmit}
-          className='inline-flex w-full justify-center rounded-md bg-green-600 px-3 py-2  font-semibold text-white shadow-sm hover:bg-green-500 sm:ml-3 sm:w-auto'
+          className='flex items-center space-x-4 py-2 px-4 border border-green-500 rounded-lg text-white bg-green-500 shadow-md hover:bg-green-400 hover:border-green-400 text-sm font-bold'
         >
           Simpan
         </button>
         <button
           type='button'
           onClick={onCancelAdd}
-          className='mt-3 inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2  font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-red-500 sm:mt-0 sm:w-auto'
+          className='flex items-center space-x-4 py-2 px-4 border border-red-500 rounded-lg text-white bg-red-500 shadow-md hover:bg-red-400 hover:border-red-400 text-sm font-bold'
         >
           Batal
         </button>
@@ -525,8 +525,8 @@ const CostOptionRow = ({
   error?: string
 }) => (
   <Fragment>
-    <div className='grid grid-cols-2 items-center gap-3 relative rounded-md'>
-      <p className='col-end-2'>{label}</p>
+    <div className='grid grid-cols-2 items-center gap-3 rounded-md'>
+      <p>{label}</p>
       {inputName ? (
         <NumberInput
           defaultValue={value}
