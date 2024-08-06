@@ -53,7 +53,7 @@ export const AddTransactionTable = ({
 
   const fetchTransactionCode = useCallback(async () => {
     try {
-      const response = await axios.get('http://localhost:3000/sales/code')
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_APP_URL}/sales/code`)
       if (response.status === 200) {
         setTransaction((prev) => ({ ...prev, code: response.data }))
       }
