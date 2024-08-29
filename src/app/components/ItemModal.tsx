@@ -267,12 +267,26 @@ const FormSection = ({
   totalAmount: number
 }) => (
   <div className='mt-2 space-y-4'>
-    <TextInput label='Code' name='code' defaultValue={form.code} />
-    <TextInput label='Nama Barang' name='name' defaultValue={form.name} />
+    <TextInput
+      label='Code'
+      name='code'
+      defaultValue={form.code}
+      attributes={{ readOnly: true, disabled: true }}
+      className={`bg-gray-300/45 cursor-not-allowed text-sm w-full border border-slate-300 rounded-md py-2 px-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 cursor-not-allowed' }`}
+    />
+    <TextInput
+      label='Nama Barang'
+      name='name'
+      defaultValue={form.name}
+      attributes={{ readOnly: true, disabled: true }}
+      className={`bg-gray-300/45 cursor-not-allowed text-sm w-full border border-slate-300 rounded-md py-2 px-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 cursor-not-allowed' }`}
+    />
     <TextInput
       label='Harga Barang'
       name='price'
       defaultValue={formatCurrencyIDR(form.price)}
+      attributes={{ readOnly: true, disabled: true }}
+      className={`bg-gray-300/45 cursor-not-allowed text-sm w-full border border-slate-300 rounded-md py-2 px-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 cursor-not-allowed' }`}
     />
     <TextInput
       label='Banyak Barang'
