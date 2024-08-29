@@ -88,10 +88,26 @@ export default function AddCustomerModal({
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        const errorMessage =
+        const errorMessages =
           error.response?.data?.message || 'Terjadi kesalahan'
 
-        toast.error(`Gagal menghapus data: ${errorMessage}`)
+        if (errorMessages.length >= 1) {
+          const newErrors: { [key: string]: string } = {}
+
+          errorMessages.map((error: { property: string; message: string }) => {
+            newErrors[error.property] = error.message
+            toast.error(`Gagal menginput data: ${error.message}`)
+          })
+
+          setErrors((prev) => ({
+            ...prev,
+            ...newErrors,
+            errorCount,
+          }))
+          return
+        }
+
+        toast.error(`Gagal menghapus data: ${errorMessages.message}`)
       } else {
         toast.error('An unexpected error occurred')
       }
