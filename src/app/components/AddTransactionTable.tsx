@@ -196,6 +196,9 @@ export const AddTransactionTable = ({
 
     setCustomer(costumerData)
 
+    handleClearErrors('customerId')
+    handleClearErrors('name')
+    handleClearErrors('phone')
     handleCloseModals()
   }
 
